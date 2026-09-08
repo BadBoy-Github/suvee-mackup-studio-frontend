@@ -476,6 +476,26 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
+                <img
+                  src="https://placehold.co/600x500/3e4f22/f4c430?text=Suvee+Makeup+Studios"
+                  alt="Suvee Makeup Studios"
+                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-olive-dark/80 via-olive/40 to-transparent" />
+                <div className="absolute inset-0 flex flex-col justify-end p-8">
+                  <p className="text-yellow font-semibold text-sm mb-2">Premium Bridal Experience</p>
+                  <h3 className="text-white text-2xl font-bold mb-2">Book Your Trial Today</h3>
+                  <p className="text-white/80 text-sm mb-4 max-w-xs">Experience the artistry firsthand with a personalized bridal trial session.</p>
+                  <Link
+                    to="/services"
+                    className="inline-flex items-center gap-2 bg-yellow text-olive-dark px-5 py-2.5 rounded-full text-sm font-bold w-fit hover:bg-yellow-light transition-colors"
+                  >
+                    Explore Services
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
