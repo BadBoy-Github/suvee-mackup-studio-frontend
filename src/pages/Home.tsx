@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Phone, MessageCircle, ChevronRight, Star, Sparkles, Heart, Camera, Award } from 'lucide-react';
+import { api } from '../utils/api';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -58,6 +60,33 @@ const reviews = [
 ];
 
 export default function Home() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    context: 'Bridal Makeup',
+    message: '',
+  });
+  const [status, setStatus] = useState({ submitting: false, success: null as string | null, error: null as string | null });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus({ submitting: true, success: null, error: null });
+
+    try {
+      await api.post('/contact', formData);
+      setStatus({ submitting: false, success: 'Message sent successfully!', error: null });
+      setFormData({ name: '', email: '', phone: '', context: 'Bridal Makeup', message: '' });
+    } catch (error) {
+      setStatus({ submitting: false, success: null, error: 'Failed to send message. Please try again.' });
+    }
+  };
+
   return (
     <div className="overflow-x-hidden">
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-sandal via-cream/30 to-sandal overflow-hidden">
@@ -316,11 +345,15 @@ export default function Home() {
               variants={fadeInUp}
               className="bg-white rounded-3xl p-8 shadow-xl"
             >
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
                   <label className="block text-sm font-medium text-olive mb-2">Name</label>
                   <input
                     type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
                     className="w-full px-4 py-3 rounded-xl border border-olive/20 focus:border-olive focus:ring-2 focus:ring-olive/20 outline-none transition-all"
                     placeholder="Your name"
                   />
@@ -329,6 +362,10 @@ export default function Home() {
                   <label className="block text-sm font-medium text-olive mb-2">Email</label>
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
                     className="w-full px-4 py-3 rounded-xl border border-olive/20 focus:border-olive focus:ring-2 focus:ring-olive/20 outline-none transition-all"
                     placeholder="your@email.com"
                   />
@@ -337,13 +374,17 @@ export default function Home() {
                   <label className="block text-sm font-medium text-olive mb-2">Phone</label>
                   <input
                     type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
                     className="w-full px-4 py-3 rounded-xl border border-olive/20 focus:border-olive focus:ring-2 focus:ring-olive/20 outline-none transition-all"
                     placeholder="+91 98765 43210"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-olive mb-2">Context</label>
-                  <select className="w-full px-4 py-3 rounded-xl border border-olive/20 focus:border-olive focus:ring-2 focus:ring-olive/20 outline-none transition-all">
+                  <select name="context" value={formData.context} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-olive/20 focus:border-olive focus:ring-2 focus:ring-olive/20 outline-none transition-all">
                     <option>Bridal Makeup</option>
                     <option>Bridesmaid Makeup</option>
                     <option>Groom Makeup</option>
@@ -356,16 +397,31 @@ export default function Home() {
                 <div>
                   <label className="block text-sm font-medium text-olive mb-2">Message</label>
                   <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                     rows={4}
+                    required
                     className="w-full px-4 py-3 rounded-xl border border-olive/20 focus:border-olive focus:ring-2 focus:ring-olive/20 outline-none transition-all resize-none"
                     placeholder="Tell us about your requirements..."
                   />
                 </div>
+                {status.success && (
+                  <div className="p-4 rounded-xl bg-green-50 text-green-700 text-sm font-medium">
+                    {status.success}
+                  </div>
+                )}
+                {status.error && (
+                  <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm font-medium">
+                    {status.error}
+                  </div>
+                )}
                 <button
                   type="submit"
-                  className="w-full bg-olive text-white py-4 rounded-xl font-semibold hover:bg-olive-dark transition-all hover:scale-[1.02] shadow-lg shadow-olive/20"
+                  disabled={status.submitting}
+                  className="w-full bg-olive text-white py-4 rounded-xl font-semibold hover:bg-olive-dark transition-all hover:scale-[1.02] shadow-lg shadow-olive/20 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Send Message
+                  {status.submitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </motion.div>
