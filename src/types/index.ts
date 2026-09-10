@@ -5,6 +5,7 @@ export interface Service {
   price: string;
   description?: string;
   incl?: string;
+  heroImage?: string;
   createdAt: string;
 }
 

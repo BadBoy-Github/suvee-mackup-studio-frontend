@@ -21,6 +21,7 @@ interface Service {
   price: string;
   description?: string;
   incl?: string;
+  heroImage?: string;
 }
 
 interface Review {
@@ -181,21 +182,28 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.2 }}
                   variants={scaleIn}
-                  className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                  className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-[#f5e6d3] flex items-center justify-center">
-                    <span className="text-[#556b2f] font-bold text-xl text-center px-4">{service.title}</span>
+                  <div className="h-[70%] w-full overflow-hidden">
+                    <img
+                      src={service.heroImage || 'https://placehold.co/600x400/556b2f/ffffff?text=Service'}
+                      alt={service.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold text-olive mb-3">{service.title}</h3>
-                    <p className="text-olive-dark/70 mb-6 line-clamp-2">{service.description || service.subtitle}</p>
-                    <Link
-                      to="/services"
-                      className="inline-flex items-center gap-2 text-olive font-semibold group/link"
-                    >
-                      Learn More
-                      <ChevronRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
+                  <div className="h-[30%] w-full p-6 flex flex-col justify-center">
+                    <h3 className="text-2xl font-bold text-olive mb-2">{service.title}</h3>
+                    <p className="text-olive-dark/70 mb-4 line-clamp-2">{service.subtitle}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-olive font-bold">{service.price}</span>
+                      <Link
+                        to="/services"
+                        className="inline-flex items-center gap-2 text-olive font-semibold group/link"
+                      >
+                        Learn More
+                        <ChevronRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
                   </div>
                 </motion.div>
               ))}

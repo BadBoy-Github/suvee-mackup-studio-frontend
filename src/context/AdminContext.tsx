@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 
 interface AdminContextType {
   isAuthenticated: boolean;
+  checkingAuth: boolean;
   email: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -11,6 +12,7 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -20,6 +22,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(true);
       setEmail(storedEmail);
     }
+    setCheckingAuth(false);
   }, []);
 
   const login = async (emailInput: string, password: string): Promise<boolean> => {
@@ -58,7 +61,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AdminContext.Provider value={{ isAuthenticated, email, login, logout }}>
+    <AdminContext.Provider value={{ isAuthenticated, checkingAuth, email, login, logout }}>
       {children}
     </AdminContext.Provider>
   );

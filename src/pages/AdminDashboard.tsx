@@ -12,6 +12,7 @@ interface Service {
   price: string;
   description?: string;
   incl?: string;
+  heroImage?: string;
 }
 
 interface Work {
@@ -30,6 +31,7 @@ const emptyService = {
   price: '',
   description: '',
   incl: '',
+  heroImage: '',
 };
 
 const emptyWork = {
@@ -42,7 +44,7 @@ const emptyWork = {
 };
 
 export default function AdminDashboard() {
-  const { isAuthenticated, email, logout } = useAdmin();
+  const { isAuthenticated, checkingAuth, email, logout } = useAdmin();
   const navigate = useNavigate();
   const [tab, setTab] = useState<'services' | 'works'>('services');
 
@@ -61,10 +63,10 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!checkingAuth && !isAuthenticated) {
       navigate('/admin/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [checkingAuth, isAuthenticated, navigate]);
 
   const fetchServices = async () => {
     try {
@@ -130,6 +132,7 @@ export default function AdminDashboard() {
       price: service.price,
       description: service.description || '',
       incl: service.incl || '',
+      heroImage: service.heroImage || '',
     });
     setServiceModalOpen(true);
   };
@@ -393,7 +396,7 @@ export default function AdminDashboard() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-[#f5e6d3] rounded-2xl border-2 border-[#556b2f] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+                className="bg-[#f5e6d3] rounded-2xl border-2 border-[#556b2f] p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center mb-6">
@@ -436,6 +439,15 @@ export default function AdminDashboard() {
                       onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                       required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Hero Image URL</label>
+                    <input
+                      type="text"
+                      value={serviceForm.heroImage}
+                      onChange={(e) => setServiceForm({ ...serviceForm, heroImage: e.target.value })}
+                      className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                     />
                   </div>
                   <div>
@@ -496,7 +508,7 @@ export default function AdminDashboard() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-[#f5e6d3] rounded-2xl border-2 border-[#556b2f] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+                className="bg-[#f5e6d3] rounded-2xl border-2 border-[#556b2f] p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center mb-6">

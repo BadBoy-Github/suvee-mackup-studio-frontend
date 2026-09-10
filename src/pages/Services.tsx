@@ -10,6 +10,7 @@ interface Service {
   price: string;
   description?: string;
   incl?: string;
+  heroImage?: string;
 }
 
 export default function Services() {
@@ -45,7 +46,7 @@ export default function Services() {
   };
 
   return (
-    <div className="min-h-screen bg-sandal pt-24">
+    <div className="min-h-screen bg-sandal pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
@@ -80,29 +81,37 @@ export default function Services() {
               <motion.div
                 key={service._id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+                style={{ height: '60vh' }}
               >
-                <div className="aspect-[4/3] overflow-hidden bg-[#f5e6d3] flex items-center justify-center">
-                  <span className="text-[#556b2f] font-bold text-2xl text-center px-4">{service.title}</span>
-                </div>
-                <div className="p-6">
-                  <span className="inline-block px-3 py-1 rounded-full bg-olive/10 text-olive text-xs font-medium mb-3">
-                    {service.subtitle}
-                  </span>
-                  <h3 className="text-xl font-bold text-olive mb-2">{service.title}</h3>
-                  <div className="text-olive-dark/70 text-sm mb-4">
-                    {renderDescription(service.description)}
+                <div className="absolute inset-0 flex flex-col">
+                  <div className="h-[70%] w-full overflow-hidden">
+                    <img
+                      src={service.heroImage || 'https://placehold.co/600x400/556b2f/ffffff?text=Service'}
+                      alt={service.title}
+                      className="w-full h-full object-cover transition-all duration-500"
+                    />
                   </div>
-                  {service.incl && (
-                    <p className="text-olive-dark/70 text-xs mb-4">Incl: {service.incl}</p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-olive font-bold">{service.price}</span>
-                    <ChevronRight className="w-5 h-5 text-olive" />
+                  <div className="h-[30%] w-full p-4 flex flex-col justify-center">
+                    <h3 className="text-lg font-bold text-olive truncate">{service.title}</h3>
+                    <p className="text-olive-dark/70 text-sm truncate">{service.subtitle}</p>
+                    <span className="text-olive font-bold text-sm">{service.price}</span>
+                  </div>
+                </div>
+
+                <div className="absolute inset-0 bg-olive/90 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex items-center justify-center p-6 text-center z-10">
+                  <div className="text-white">
+                    <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
+                    <p className="text-white/80 text-sm mb-2">{service.subtitle}</p>
+                    <p className="text-yellow font-bold text-lg mb-3">{service.price}</p>
+                    {renderDescription(service.description)}
+                    {service.incl && (
+                      <p className="text-white/70 text-xs mt-2">Incl: {service.incl}</p>
+                    )}
                   </div>
                 </div>
               </motion.div>
