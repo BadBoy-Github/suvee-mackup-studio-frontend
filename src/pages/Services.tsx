@@ -12,12 +12,9 @@ interface Service {
   incl?: string;
 }
 
-const tags = ['All', 'Bridal', 'Bridesmaid', 'Groom', 'Hair', 'Saree', 'Mehndi'];
-
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const [search, setSearch] = useState('');
-  const [activeTag, setActiveTag] = useState('All');
 
   useEffect(() => {
     const fetchServices = async () => {
