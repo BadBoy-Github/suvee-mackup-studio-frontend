@@ -16,6 +16,7 @@ interface Service {
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const [search, setSearch] = useState('');
+  const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -43,6 +44,10 @@ export default function Services() {
     return desc.split(';').map((line, idx) => (
       <p key={idx} className="mb-1">{line.trim()}</p>
     ));
+  };
+
+  const handleCardClick = (id: string) => {
+    setActiveServiceId(prev => prev === id ? null : id);
   };
 
   return (
@@ -77,45 +82,49 @@ export default function Services() {
 
         <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <AnimatePresence mode="popLayout">
-            {filteredServices.map((service, index) => (
-              <motion.div
-                key={service._id}
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
-                style={{ height: '60vh' }}
-              >
-                <div className="absolute inset-0 flex flex-col">
-                  <div className="h-[70%] w-full overflow-hidden">
-                    <img
-                      src={service.heroImage || 'https://placehold.co/600x400/556b2f/ffffff?text=Service'}
-                      alt={service.title}
-                      className="w-full h-full object-cover transition-all duration-500"
-                    />
+            {filteredServices.map((service, index) => {
+              const isActive = activeServiceId === service._id;
+              return (
+                <motion.div
+                  key={service._id}
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer"
+                  style={{ height: '60vh' }}
+                  onClick={() => handleCardClick(service._id)}
+                >
+                  <div className="absolute inset-0 flex flex-col">
+                    <div className="h-[70%] w-full overflow-hidden">
+                      <img
+                        src={service.heroImage || 'https://placehold.co/600x400/556b2f/ffffff?text=Service'}
+                        alt={service.title}
+                        className="w-full h-full object-cover transition-all duration-500"
+                      />
+                    </div>
+                    <div className="h-[30%] w-full p-4 flex flex-col justify-center">
+                      <h3 className="text-lg font-bold text-olive truncate">{service.title}</h3>
+                      <p className="text-olive-dark/70 text-sm truncate">{service.subtitle}</p>
+                      <span className="text-olive font-bold text-sm">{service.price}</span>
+                    </div>
                   </div>
-                  <div className="h-[30%] w-full p-4 flex flex-col justify-center">
-                    <h3 className="text-lg font-bold text-olive truncate">{service.title}</h3>
-                    <p className="text-olive-dark/70 text-sm truncate">{service.subtitle}</p>
-                    <span className="text-olive font-bold text-sm">{service.price}</span>
-                  </div>
-                </div>
 
-                <div className="absolute inset-0 bg-olive/90 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex items-center justify-center p-6 text-center z-10">
-                  <div className="text-white">
-                    <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
-                    <p className="text-white/80 text-sm mb-2">{service.subtitle}</p>
-                    <p className="text-yellow font-bold text-lg mb-3">{service.price}</p>
-                    {renderDescription(service.description)}
-                    {service.incl && (
-                      <p className="text-white/70 text-xs mt-2">Incl: {service.incl}</p>
-                    )}
+                  <div className={`absolute inset-0 bg-olive/90 flex items-center justify-center p-6 text-center z-10 transition-transform duration-500 ${isActive ? 'translate-y-0' : 'translate-y-full'} md:group-hover:translate-y-0`}>
+                    <div className="text-white">
+                      <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
+                      <p className="text-white/80 text-sm mb-2">{service.subtitle}</p>
+                      <p className="text-yellow font-bold text-lg mb-3">{service.price}</p>
+                      {renderDescription(service.description)}
+                      {service.incl && (
+                        <p className="text-white/70 text-xs mt-2">Incl: {service.incl}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 
