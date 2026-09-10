@@ -7,36 +7,38 @@ import { adminApi } from '../utils/api';
 
 interface Service {
   _id: string;
-  name: string;
-  description: string;
-  category: string;
+  title: string;
+  subtitle: string;
   price: string;
-  image: string;
-  isHD: boolean;
-  isTop: boolean;
+  description?: string;
+  incl?: string;
 }
 
 interface Work {
   _id: string;
-  customerName: string;
-  photos: string[];
-  description: string;
+  groomName: string;
+  brideName: string;
+  img1?: string;
+  img2?: string;
+  img3?: string;
+  img4?: string;
 }
 
 const emptyService = {
-  name: '',
-  description: '',
-  category: '',
+  title: '',
+  subtitle: '',
   price: '',
-  image: '',
-  isHD: false,
-  isTop: false,
+  description: '',
+  incl: '',
 };
 
 const emptyWork = {
-  customerName: '',
-  description: '',
-  photos: '',
+  groomName: '',
+  brideName: '',
+  img1: '',
+  img2: '',
+  img3: '',
+  img4: '',
 };
 
 export default function AdminDashboard() {
@@ -123,13 +125,11 @@ export default function AdminDashboard() {
   const handleEditService = (service: Service) => {
     setEditingService(service);
     setServiceForm({
-      name: service.name,
-      description: service.description,
-      category: service.category,
+      title: service.title,
+      subtitle: service.subtitle,
       price: service.price,
-      image: service.image || '',
-      isHD: service.isHD,
-      isTop: service.isTop,
+      description: service.description || '',
+      incl: service.incl || '',
     });
     setServiceModalOpen(true);
   };
@@ -139,12 +139,10 @@ export default function AdminDashboard() {
     setLoading(true);
     setError('');
     try {
-      const photos = workForm.photos.split('\n').filter(url => url.trim() !== '');
-      const payload = { ...workForm, photos };
       if (editingWork) {
-        await adminApi.put(`/works/${editingWork._id}`, payload);
+        await adminApi.put(`/works/${editingWork._id}`, workForm);
       } else {
-        await adminApi.post('/works', payload);
+        await adminApi.post('/works', workForm);
       }
       await fetchWorks();
       setWorkModalOpen(false);
@@ -170,9 +168,12 @@ export default function AdminDashboard() {
   const handleEditWork = (work: Work) => {
     setEditingWork(work);
     setWorkForm({
-      customerName: work.customerName,
-      description: work.description,
-      photos: work.photos.join('\n'),
+      groomName: work.groomName,
+      brideName: work.brideName,
+      img1: work.img1 || '',
+      img2: work.img2 || '',
+      img3: work.img3 || '',
+      img4: work.img4 || '',
     });
     setWorkModalOpen(true);
   };
@@ -184,15 +185,13 @@ export default function AdminDashboard() {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-[#556b2f]">
-              Admin Dashboard
-            </h1>
+            <h1 className="text-3xl font-bold text-[#556b2f]">Admin Dashboard</h1>
             <p className="text-[#556b2f] opacity-70">{email}</p>
           </div>
           <button
             onClick={() => {
               logout();
-              navigate("/admin/login");
+              navigate('/admin/login');
             }}
             className="flex items-center gap-2 px-4 py-2 border-2 border-[#556b2f] text-[#556b2f] rounded-lg hover:bg-[#556b2f] hover:text-white transition-colors"
           >
@@ -204,33 +203,28 @@ export default function AdminDashboard() {
         {error && (
           <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             {error}
-            <button
-              onClick={() => setError("")}
-              className="float-right font-bold"
-            >
-              ×
-            </button>
+            <button onClick={() => setError('')} className="float-right font-bold">×</button>
           </div>
         )}
 
         <div className="flex gap-4 mb-8 border-b-2 border-[#556b2f]">
-          {["services", "works"].map((t) => (
+          {['services', 'works'].map((t) => (
             <button
               key={t}
-              onClick={() => setTab(t as "services" | "works")}
+              onClick={() => setTab(t as 'services' | 'works')}
               className={`px-6 py-3 font-semibold uppercase tracking-wider transition-colors ${
                 tab === t
-                  ? "text-[#556b2f] border-b-2 border-[#f4c430] -mb-[2px]"
-                  : "text-gray-600 hover:text-[#556b2f]"
+                  ? 'text-[#556b2f] border-b-2 border-[#f4c430] -mb-[2px]'
+                  : 'text-gray-600 hover:text-[#556b2f]'
               }`}
             >
-              {t === "services" ? "Services" : "Works"}
+              {t === 'services' ? 'Services' : 'Works'}
             </button>
           ))}
         </div>
 
         <AnimatePresence mode="wait">
-          {tab === "services" ? (
+          {tab === 'services' ? (
             <motion.div
               key="services"
               initial={{ opacity: 0, x: -20 }}
@@ -261,23 +255,17 @@ export default function AdminDashboard() {
               >
                 {services.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-[#556b2f] text-lg font-medium">
-                      No services yet.
-                    </p>
-                    <p className="text-[#556b2f] opacity-70 mt-2">
-                      Click "Add Service" to create your first service entry.
-                    </p>
+                    <p className="text-[#556b2f] text-lg font-medium">No services yet.</p>
+                    <p className="text-[#556b2f] opacity-70 mt-2">Click "Add Service" to create your first service entry.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b-2 border-[#556b2f]">
-                          <th className="py-2 px-4 text-[#556b2f]">Name</th>
-                          <th className="py-2 px-4 text-[#556b2f]">Category</th>
+                          <th className="py-2 px-4 text-[#556b2f]">Title</th>
+                          <th className="py-2 px-4 text-[#556b2f]">Subtitle</th>
                           <th className="py-2 px-4 text-[#556b2f]">Price</th>
-                          <th className="py-2 px-4 text-[#556b2f]">HD</th>
-                          <th className="py-2 px-4 text-[#556b2f]">Top</th>
                           <th className="py-2 px-4 text-[#556b2f]">Actions</th>
                         </tr>
                       </thead>
@@ -289,21 +277,9 @@ export default function AdminDashboard() {
                             animate={{ opacity: 1 }}
                             className="border-b border-[#556b2f]/20"
                           >
-                            <td className="py-3 px-4 text-[#556b2f] font-medium">
-                              {service.name}
-                            </td>
-                            <td className="py-3 px-4 text-[#556b2f]">
-                              {service.category}
-                            </td>
-                            <td className="py-3 px-4 text-[#556b2f]">
-                              {service.price}
-                            </td>
-                            <td className="py-3 px-4 text-[#556b2f]">
-                              {service.isHD ? "Yes" : "No"}
-                            </td>
-                            <td className="py-3 px-4 text-[#556b2f]">
-                              {service.isTop ? "Yes" : "No"}
-                            </td>
+                            <td className="py-3 px-4 text-[#556b2f] font-medium">{service.title}</td>
+                            <td className="py-3 px-4 text-[#556b2f]">{service.subtitle}</td>
+                            <td className="py-3 px-4 text-[#556b2f]">{service.price}</td>
                             <td className="py-3 px-4 flex gap-2">
                               <button
                                 onClick={() => handleEditService(service)}
@@ -357,12 +333,8 @@ export default function AdminDashboard() {
               >
                 {works.length === 0 ? (
                   <div className="col-span-full bg-[#f5e6d3] rounded-xl py-8 border-2 border-[#556b2f] text-center">
-                    <p className="text-[#556b2f] text-lg font-medium">
-                      No works yet.
-                    </p>
-                    <p className="text-[#556b2f] opacity-70 mt-2">
-                      Click "Add Work" to create your first work entry.
-                    </p>
+                    <p className="text-[#556b2f] text-lg font-medium">No works yet.</p>
+                    <p className="text-[#556b2f] opacity-70 mt-2">Click "Add Work" to create your first work entry.</p>
                   </div>
                 ) : (
                   works.map((work) => (
@@ -372,24 +344,17 @@ export default function AdminDashboard() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="bg-[#f5e6d3] rounded-xl p-6 border-2 border-[#556b2f] flex flex-col"
                     >
-                      <h3 className="text-xl font-bold text-[#556b2f] mb-2">
-                        {work.customerName}
-                      </h3>
-                      <p className="text-gray-700 mb-4 flex-grow">
-                        {work.description}
-                      </p>
-                      {work.photos.length > 0 && (
-                        <div className="grid grid-cols-2 gap-2 mb-4">
-                          {work.photos.slice(0, 4).map((photo, idx) => (
-                            <img
-                              key={idx}
-                              src={photo}
-                              alt={`Photo ${idx + 1}`}
-                              className="w-full h-24 object-cover rounded-lg"
-                            />
-                          ))}
-                        </div>
-                      )}
+                      <h3 className="text-xl font-bold text-[#556b2f] mb-2">{work.groomName} & {work.brideName}</h3>
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        {[work.img1, work.img2, work.img3, work.img4].filter(Boolean).map((photo, idx) => (
+                          <img
+                            key={idx}
+                            src={photo}
+                            alt={`Photo ${idx + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                        ))}
+                      </div>
                       <div className="flex gap-2 mt-auto">
                         <button
                           onClick={() => handleEditWork(work)}
@@ -433,7 +398,7 @@ export default function AdminDashboard() {
               >
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-[#556b2f]">
-                    {editingService ? "Edit Service" : "Add New Service"}
+                    {editingService ? 'Edit Service' : 'Add New Service'}
                   </h2>
                   <button
                     onClick={() => setServiceModalOpen(false)}
@@ -444,114 +409,52 @@ export default function AdminDashboard() {
                 </div>
                 <form onSubmit={handleSaveService} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Name
-                    </label>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Title</label>
                     <input
                       type="text"
-                      value={serviceForm.name}
-                      onChange={(e) =>
-                        setServiceForm({ ...serviceForm, name: e.target.value })
-                      }
+                      value={serviceForm.title}
+                      onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Category
-                    </label>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Subtitle</label>
                     <input
                       type="text"
-                      value={serviceForm.category}
-                      onChange={(e) =>
-                        setServiceForm({
-                          ...serviceForm,
-                          category: e.target.value,
-                        })
-                      }
+                      value={serviceForm.subtitle}
+                      onChange={(e) => setServiceForm({ ...serviceForm, subtitle: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Price
-                    </label>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Price</label>
                     <input
                       type="text"
                       value={serviceForm.price}
-                      onChange={(e) =>
-                        setServiceForm({
-                          ...serviceForm,
-                          price: e.target.value,
-                        })
-                      }
+                      onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Image URL
-                    </label>
-                    <input
-                      type="text"
-                      value={serviceForm.image}
-                      onChange={(e) =>
-                        setServiceForm({
-                          ...serviceForm,
-                          image: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Description
-                    </label>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Description <span className="text-xs opacity-70">(Optional; use ; for new line)</span></label>
                     <textarea
                       value={serviceForm.description}
-                      onChange={(e) =>
-                        setServiceForm({
-                          ...serviceForm,
-                          description: e.target.value,
-                        })
-                      }
+                      onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                       rows={3}
                     />
                   </div>
-                  <div className="flex gap-6">
-                    <label className="flex items-center gap-2 text-[#556b2f]">
-                      <input
-                        type="checkbox"
-                        checked={serviceForm.isHD}
-                        onChange={(e) =>
-                          setServiceForm({
-                            ...serviceForm,
-                            isHD: e.target.checked,
-                          })
-                        }
-                        className="accent-[#f4c430]"
-                      />
-                      HD
-                    </label>
-                    <label className="flex items-center gap-2 text-[#556b2f]">
-                      <input
-                        type="checkbox"
-                        checked={serviceForm.isTop}
-                        onChange={(e) =>
-                          setServiceForm({
-                            ...serviceForm,
-                            isTop: e.target.checked,
-                          })
-                        }
-                        className="accent-[#f4c430]"
-                      />
-                      Top
-                    </label>
+                  <div>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Incl</label>
+                    <input
+                      type="text"
+                      value={serviceForm.incl}
+                      onChange={(e) => setServiceForm({ ...serviceForm, incl: e.target.value })}
+                      className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
+                    />
                   </div>
                   <div className="flex gap-2 pt-2">
                     <button
@@ -559,7 +462,7 @@ export default function AdminDashboard() {
                       disabled={loading}
                       className="flex items-center gap-2 px-4 py-2 bg-[#f4c430] text-[#556b2f] font-semibold rounded-lg hover:bg-[#e6b82e] transition-colors disabled:opacity-50"
                     >
-                      {editingService ? "Update" : "Add"} Service
+                      {editingService ? 'Update' : 'Add'} Service
                     </button>
                     <button
                       type="button"
@@ -598,7 +501,7 @@ export default function AdminDashboard() {
               >
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-[#556b2f]">
-                    {editingWork ? "Edit Work" : "Add New Work"}
+                    {editingWork ? 'Edit Work' : 'Add New Work'}
                   </h2>
                   <button
                     onClick={() => setWorkModalOpen(false)}
@@ -609,49 +512,59 @@ export default function AdminDashboard() {
                 </div>
                 <form onSubmit={handleSaveWork} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Customer Name
-                    </label>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Groom Name</label>
                     <input
                       type="text"
-                      value={workForm.customerName}
-                      onChange={(e) =>
-                        setWorkForm({
-                          ...workForm,
-                          customerName: e.target.value,
-                        })
-                      }
+                      value={workForm.groomName}
+                      onChange={(e) => setWorkForm({ ...workForm, groomName: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      value={workForm.description}
-                      onChange={(e) =>
-                        setWorkForm({
-                          ...workForm,
-                          description: e.target.value,
-                        })
-                      }
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Bride Name</label>
+                    <input
+                      type="text"
+                      value={workForm.brideName}
+                      onChange={(e) => setWorkForm({ ...workForm, brideName: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
-                      rows={3}
+                      required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#556b2f] mb-1">
-                      Photos (one URL per line)
-                    </label>
-                    <textarea
-                      value={workForm.photos}
-                      onChange={(e) =>
-                        setWorkForm({ ...workForm, photos: e.target.value })
-                      }
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Image 1 URL</label>
+                    <input
+                      type="text"
+                      value={workForm.img1}
+                      onChange={(e) => setWorkForm({ ...workForm, img1: e.target.value })}
                       className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
-                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Image 2 URL</label>
+                    <input
+                      type="text"
+                      value={workForm.img2}
+                      onChange={(e) => setWorkForm({ ...workForm, img2: e.target.value })}
+                      className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Image 3 URL</label>
+                    <input
+                      type="text"
+                      value={workForm.img3}
+                      onChange={(e) => setWorkForm({ ...workForm, img3: e.target.value })}
+                      className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#556b2f] mb-1">Image 4 URL</label>
+                    <input
+                      type="text"
+                      value={workForm.img4}
+                      onChange={(e) => setWorkForm({ ...workForm, img4: e.target.value })}
+                      className="w-full px-4 py-2 border border-[#556b2f] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
                     />
                   </div>
                   <div className="flex gap-2 pt-2">
@@ -660,7 +573,7 @@ export default function AdminDashboard() {
                       disabled={loading}
                       className="flex items-center gap-2 px-4 py-2 bg-[#f4c430] text-[#556b2f] font-semibold rounded-lg hover:bg-[#e6b82e] transition-colors disabled:opacity-50"
                     >
-                      {editingWork ? "Update" : "Add"} Work
+                      {editingWork ? 'Update' : 'Add'} Work
                     </button>
                     <button
                       type="button"

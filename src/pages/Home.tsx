@@ -14,52 +14,25 @@ const scaleIn = {
   visible: { opacity: 1, scale: 1 },
 };
 
-const services = [
-  {
-    name: 'Bridal Makeup',
-    description: 'A flawless bridal look that enhances your natural beauty for your special day.',
-    image: 'https://placehold.co/600x400/olive/white?text=Bridal+Makeup',
-  },
-  {
-    name: 'Bridesmaid Makeup',
-    description: 'Elegant and complementary looks perfect for the bridal party.',
-    image: 'https://placehold.co/600x400/yellow/white?text=Bridesmaid+Makeup',
-  },
-  {
-    name: 'Groom Makeup',
-    description: 'Polished and refined grooming services for the groom and groomsmen.',
-    image: 'https://placehold.co/600x400/olive/white?text=Groom+Makeup',
-  },
-];
+interface Service {
+  _id: string;
+  title: string;
+  subtitle: string;
+  price: string;
+  description?: string;
+  incl?: string;
+}
 
-const reviews = [
-  {
-    name: 'Priya Sharma',
-    rating: 5,
-    comment: 'Absolutely stunning! My bridal makeup was flawless and lasted the entire day. Highly recommend Suvee Makeup Studios!',
-    avatar: 'https://placehold.co/100x100/olive/white?text=PS',
-  },
-  {
-    name: 'Anita Reddy',
-    rating: 5,
-    comment: 'The team is so professional and creative. They made me feel like a princess on my wedding day.',
-    avatar: 'https://placehold.co/100x100/yellow/white?text=AR',
-  },
-  {
-    name: 'Meera Krishnan',
-    rating: 5,
-    comment: 'Best makeup artists in Erode! The trial session was thorough and the final result exceeded my expectations.',
-    avatar: 'https://placehold.co/100x100/olive/white?text=MK',
-  },
-  {
-    name: 'Divya Iyer',
-    rating: 4,
-    comment: 'Gorgeous makeup and wonderful staff. The only reason for 4 stars is the waiting time, but totally worth it.',
-    avatar: 'https://placehold.co/100x100/yellow/white?text=DI',
-  },
-];
+interface Review {
+  _id: string;
+  name: string;
+  rating: number;
+  comment: string;
+}
 
 export default function Home() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -86,6 +59,26 @@ export default function Home() {
       setStatus({ submitting: false, success: null, error: 'Failed to send message. Please try again.' });
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [servicesRes, reviewsRes] = await Promise.all([
+          api.get('/services'),
+          api.get('/reviews'),
+        ]);
+        if (Array.isArray(servicesRes.data)) {
+          setServices(servicesRes.data);
+        }
+        if (Array.isArray(reviewsRes.data)) {
+          setReviews(reviewsRes.data);
+        }
+      } catch (err) {
+        console.error('Failed to load home data', err);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="overflow-x-hidden">
@@ -176,55 +169,55 @@ export default function Home() {
           >
             Our Top Services
           </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {services.map((service, index) => (
+          {services.length === 0 ? (
+            <p className="text-center text-olive-dark/50">No services available yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {services.slice(0, 3).map((service, index) => (
+                <motion.div
+                  key={service._id}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                  variants={scaleIn}
+                  className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                >
+                  <div className="aspect-[4/3] overflow-hidden bg-[#f5e6d3] flex items-center justify-center">
+                    <span className="text-[#556b2f] font-bold text-xl text-center px-4">{service.title}</span>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-bold text-olive mb-3">{service.title}</h3>
+                    <p className="text-olive-dark/70 mb-6 line-clamp-2">{service.description || service.subtitle}</p>
+                    <Link
+                      to="/services"
+                      className="inline-flex items-center gap-2 text-olive font-semibold group/link"
+                    >
+                      Learn More
+                      <ChevronRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
               <motion.div
-                key={service.name}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
                 variants={scaleIn}
-                className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
               >
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-olive mb-3">{service.name}</h3>
-                  <p className="text-olive-dark/70 mb-6 line-clamp-2">{service.description}</p>
-                  <Link
-                    to="/services"
-                    className="inline-flex items-center gap-2 text-olive font-semibold group/link"
-                  >
-                    Learn More
-                    <ChevronRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
+                <Link
+                  to="/services"
+                  className="block h-full bg-gradient-to-br from-olive/5 to-yellow/5 rounded-3xl border-2 border-dashed border-olive/30 flex items-center justify-center hover:border-olive hover:bg-olive/5 transition-all duration-500 min-h-[320px]"
+                >
+                  <div className="text-center p-6">
+                    <Sparkles className="w-12 h-12 text-yellow mx-auto mb-4" />
+                    <span className="text-xl font-bold text-olive">See All Services</span>
+                  </div>
+                </Link>
               </motion.div>
-            ))}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              variants={scaleIn}
-            >
-              <Link
-                to="/services"
-                className="block h-full bg-gradient-to-br from-olive/5 to-yellow/5 rounded-3xl border-2 border-dashed border-olive/30 flex items-center justify-center hover:border-olive hover:bg-olive/5 transition-all duration-500 min-h-[320px]"
-              >
-                <div className="text-center p-6">
-                  <Sparkles className="w-12 h-12 text-yellow mx-auto mb-4" />
-                  <span className="text-xl font-bold text-olive">See All Services</span>
-                </div>
-              </Link>
-            </motion.div>
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -238,93 +231,47 @@ export default function Home() {
             variants={fadeInUp}
             className="text-4xl md:text-5xl font-bold text-center text-olive mb-12"
           >
-            Our Recent Works
+            What Our Clients Say
           </motion.h2>
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            variants={fadeInUp}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 scrollbar-hide"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-80 snap-center"
-              >
-                <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                  <img
-                    src={`https://placehold.co/400x500/olive/white?text=Work+${i}`}
-                    alt={`Work ${i}`}
-                    className="w-full h-96 object-cover"
-                  />
-                </div>
-              </div>
-            ))}
-          </motion.div>
-          <div className="text-center mt-8">
-            <Link
-              to="/works"
-              className="inline-flex items-center gap-2 bg-olive text-white px-8 py-3 rounded-full font-semibold hover:bg-olive-dark transition-all hover:scale-105"
+          {reviews.length === 0 ? (
+            <p className="text-center text-olive-dark/50">No reviews yet.</p>
+          ) : (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              variants={fadeInUp}
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              See All Works
-              <ChevronRight className="w-5 h-5" />
-            </Link>
-          </div>
+              {reviews.map((review) => (
+                <div
+                  key={review._id}
+                  className="flex-shrink-0 w-80 snap-center bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-olive/10 flex items-center justify-center border-2 border-yellow">
+                      <span className="text-olive font-bold text-lg">{review.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-olive">{review.name}</h4>
+                      <div className="flex gap-1">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-yellow text-yellow" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-olive-dark/70 italic">"{review.comment}"</p>
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </section>
 
       <section className="py-24 bg-sandal">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            variants={fadeInUp}
-            className="text-4xl md:text-5xl font-bold text-center text-olive mb-16"
-          >
-            What Our Clients Say
-          </motion.h2>
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            variants={fadeInUp}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {reviews.map((review) => (
-              <div
-                key={review.name}
-                className="flex-shrink-0 w-80 snap-center bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500"
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  <img
-                    src={review.avatar}
-                    alt={review.name}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-yellow"
-                  />
-                  <div>
-                    <h4 className="font-bold text-olive">{review.name}</h4>
-                    <div className="flex gap-1">
-                      {[...Array(review.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow text-yellow" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-olive-dark/70 italic">"{review.comment}"</p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="py-24 bg-cream/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
             initial="hidden"
@@ -474,26 +421,6 @@ export default function Home() {
                       </a>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
-                <img
-                  src="https://placehold.co/600x500/3e4f22/f4c430?text=Suvee+Makeup+Studios"
-                  alt="Suvee Makeup Studios"
-                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-olive-dark/80 via-olive/40 to-transparent" />
-                <div className="absolute inset-0 flex flex-col justify-end p-8">
-                  <p className="text-yellow font-semibold text-sm mb-2">Premium Bridal Experience</p>
-                  <h3 className="text-white text-2xl font-bold mb-2">Book Your Trial Today</h3>
-                  <p className="text-white/80 text-sm mb-4 max-w-xs">Experience the artistry firsthand with a personalized bridal trial session.</p>
-                  <Link
-                    to="/services"
-                    className="inline-flex items-center gap-2 bg-yellow text-olive-dark px-5 py-2.5 rounded-full text-sm font-bold w-fit hover:bg-yellow-light transition-colors"
-                  >
-                    Explore Services
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
                 </div>
               </div>
             </motion.div>

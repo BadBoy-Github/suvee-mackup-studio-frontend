@@ -4,57 +4,13 @@ import { api } from '../utils/api';
 
 interface Work {
   _id: string;
-  customerName: string;
-  photos: string[];
-  description: string;
+  groomName: string;
+  brideName: string;
+  img1?: string;
+  img2?: string;
+  img3?: string;
+  img4?: string;
 }
-
-const defaultWorks: Work[] = [
-  {
-    _id: 'default-1',
-    customerName: 'Priya & Rahul',
-    photos: [
-      'https://placehold.co/600x400/olive/white?text=Work+1',
-      'https://placehold.co/600x400/yellow/white?text=Work+2',
-      'https://placehold.co/600x400/olive/white?text=Work+3',
-      'https://placehold.co/600x400/yellow/white?text=Work+4',
-    ],
-    description: 'Bridal makeup for Priya & Rahul wedding',
-  },
-  {
-    _id: 'default-2',
-    customerName: 'Anita & Vikram',
-    photos: [
-      'https://placehold.co/600x400/yellow/white?text=Work+5',
-      'https://placehold.co/600x400/olive/white?text=Work+6',
-      'https://placehold.co/600x400/yellow/white?text=Work+7',
-      'https://placehold.co/600x400/olive/white?text=Work+8',
-    ],
-    description: 'Wedding makeup for Anita & Vikram',
-  },
-  {
-    _id: 'default-3',
-    customerName: 'Meera & Arjun',
-    photos: [
-      'https://placehold.co/600x400/olive/white?text=Work+9',
-      'https://placehold.co/600x400/yellow/white?text=Work+10',
-      'https://placehold.co/600x400/olive/white?text=Work+11',
-      'https://placehold.co/600x400/yellow/white?text=Work+12',
-    ],
-    description: 'Bridal party makeup for Meera & Arjun',
-  },
-  {
-    _id: 'default-4',
-    customerName: 'Divya & Karthik',
-    photos: [
-      'https://placehold.co/600x400/yellow/white?text=Work+13',
-      'https://placehold.co/600x400/olive/white?text=Work+14',
-      'https://placehold.co/600x400/yellow/white?text=Work+15',
-      'https://placehold.co/600x400/olive/white?text=Work+16',
-    ],
-    description: 'Pre-wedding shoot makeup for Divya & Karthik',
-  },
-];
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -62,13 +18,13 @@ const fadeInUp = {
 };
 
 export default function Works() {
-  const [works, setWorks] = useState<Work[]>(defaultWorks);
+  const [works, setWorks] = useState<Work[]>([]);
 
   useEffect(() => {
     const fetchWorks = async () => {
       try {
         const res = await api.get('/works');
-        if (Array.isArray(res.data) && res.data.length > 0) {
+        if (Array.isArray(res.data)) {
           setWorks(res.data);
         }
       } catch (err) {
@@ -101,9 +57,9 @@ export default function Works() {
             variants={fadeInUp}
             className="mb-20"
           >
-            <h2 className="text-3xl font-bold text-olive mb-8 text-center">{work.customerName}</h2>
+            <h2 className="text-3xl font-bold text-olive mb-8 text-center">{work.groomName} & {work.brideName}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {work.photos.map((photo, photoIndex) => (
+              {[work.img1, work.img2, work.img3, work.img4].filter(Boolean).map((photo, photoIndex) => (
                 <motion.div
                   key={photoIndex}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -114,7 +70,7 @@ export default function Works() {
                 >
                   <img
                     src={photo}
-                    alt={`${work.customerName} - Photo ${photoIndex + 1}`}
+                    alt={`${work.groomName} & ${work.brideName} - Photo ${photoIndex + 1}`}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
                   />
                 </motion.div>

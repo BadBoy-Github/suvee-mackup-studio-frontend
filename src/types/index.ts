@@ -1,20 +1,21 @@
 export interface Service {
   _id: string;
-  name: string;
-  description: string;
-  category: string;
-  price?: string;
-  image: string;
-  isHD?: boolean;
-  isTop?: boolean;
+  title: string;
+  subtitle: string;
+  price: string;
+  description?: string;
+  incl?: string;
   createdAt: string;
 }
 
 export interface Work {
   _id: string;
-  customerName: string;
-  photos: string[];
-  description: string;
+  groomName: string;
+  brideName: string;
+  img1?: string;
+  img2?: string;
+  img3?: string;
+  img4?: string;
   createdAt: string;
 }
 
