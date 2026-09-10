@@ -1,41 +1,58 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { api } from '../utils/api';
 
-const customers = [
+interface Work {
+  _id: string;
+  customerName: string;
+  photos: string[];
+  description: string;
+}
+
+const defaultWorks: Work[] = [
   {
-    name: 'Priya & Rahul',
+    _id: 'default-1',
+    customerName: 'Priya & Rahul',
     photos: [
       'https://placehold.co/600x400/olive/white?text=Work+1',
       'https://placehold.co/600x400/yellow/white?text=Work+2',
       'https://placehold.co/600x400/olive/white?text=Work+3',
       'https://placehold.co/600x400/yellow/white?text=Work+4',
     ],
+    description: 'Bridal makeup for Priya & Rahul wedding',
   },
   {
-    name: 'Anita & Vikram',
+    _id: 'default-2',
+    customerName: 'Anita & Vikram',
     photos: [
       'https://placehold.co/600x400/yellow/white?text=Work+5',
       'https://placehold.co/600x400/olive/white?text=Work+6',
       'https://placehold.co/600x400/yellow/white?text=Work+7',
       'https://placehold.co/600x400/olive/white?text=Work+8',
     ],
+    description: 'Wedding makeup for Anita & Vikram',
   },
   {
-    name: 'Meera & Arjun',
+    _id: 'default-3',
+    customerName: 'Meera & Arjun',
     photos: [
       'https://placehold.co/600x400/olive/white?text=Work+9',
       'https://placehold.co/600x400/yellow/white?text=Work+10',
       'https://placehold.co/600x400/olive/white?text=Work+11',
       'https://placehold.co/600x400/yellow/white?text=Work+12',
     ],
+    description: 'Bridal party makeup for Meera & Arjun',
   },
   {
-    name: 'Divya & Karthik',
+    _id: 'default-4',
+    customerName: 'Divya & Karthik',
     photos: [
       'https://placehold.co/600x400/yellow/white?text=Work+13',
       'https://placehold.co/600x400/olive/white?text=Work+14',
       'https://placehold.co/600x400/yellow/white?text=Work+15',
       'https://placehold.co/600x400/olive/white?text=Work+16',
     ],
+    description: 'Pre-wedding shoot makeup for Divya & Karthik',
   },
 ];
 
@@ -45,6 +62,22 @@ const fadeInUp = {
 };
 
 export default function Works() {
+  const [works, setWorks] = useState<Work[]>(defaultWorks);
+
+  useEffect(() => {
+    const fetchWorks = async () => {
+      try {
+        const res = await api.get('/works');
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setWorks(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load works', err);
+      }
+    };
+    fetchWorks();
+  }, []);
+
   return (
     <div className="min-h-screen bg-sandal pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,9 +91,9 @@ export default function Works() {
           Our Portfolio
         </motion.h1>
 
-        {customers.map((customer, customerIndex) => (
+        {works.map((work, customerIndex) => (
           <motion.div
-            key={customer.name}
+            key={work._id}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -68,9 +101,9 @@ export default function Works() {
             variants={fadeInUp}
             className="mb-20"
           >
-            <h2 className="text-3xl font-bold text-olive mb-8 text-center">{customer.name}</h2>
+            <h2 className="text-3xl font-bold text-olive mb-8 text-center">{work.customerName}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {customer.photos.map((photo, photoIndex) => (
+              {work.photos.map((photo, photoIndex) => (
                 <motion.div
                   key={photoIndex}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -81,7 +114,7 @@ export default function Works() {
                 >
                   <img
                     src={photo}
-                    alt={`${customer.name} - Photo ${photoIndex + 1}`}
+                    alt={`${work.customerName} - Photo ${photoIndex + 1}`}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
                   />
                 </motion.div>

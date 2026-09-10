@@ -2,21 +2,24 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAdmin } from '../context/AdminContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAdmin();
   const navigate = useNavigate();
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || '';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const success = login(password);
+    const success = await login(adminEmail, password);
     if (success) {
       navigate('/admin/dashboard');
     } else {
-      setError('Invalid password');
+      setError('Invalid credentials');
     }
   };
 
@@ -34,20 +37,30 @@ export default function AdminLogin() {
             <label className="block text-sm font-medium text-[#556b2f] mb-1">Email</label>
             <input
               type="email"
-              value={import.meta.env.VITE_ADMIN_EMAIL || ''}
+              value={adminEmail}
               readOnly
               className="w-full px-4 py-3 bg-white border border-[#556b2f] rounded-lg text-[#556b2f] cursor-not-allowed opacity-80"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-[#556b2f] mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-[#556b2f] rounded-lg text-[#556b2f] focus:outline-none focus:ring-2 focus:ring-[#f4c430]"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-white border border-[#556b2f] rounded-lg text-[#556b2f] focus:outline-none focus:ring-2 focus:ring-[#f4c430] pr-12"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-[#556b2f]"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <button

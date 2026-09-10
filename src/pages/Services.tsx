@@ -1,97 +1,130 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight } from 'lucide-react';
+import { api } from '../utils/api';
 
 interface Service {
-  id: number;
+  _id: string;
   name: string;
-  category: string;
   description: string;
-  fullDescription: string;
+  category: string;
   price: string;
   image: string;
+  isHD: boolean;
+  isTop: boolean;
 }
 
-const services: Service[] = [
+const tags = ['All', 'Bridal', 'Bridesmaid', 'Groom', 'Hair', 'Saree', 'Mehndi'];
+
+const defaultServices: Service[] = [
   {
-    id: 1,
+    _id: 'default-1',
     name: 'Bridal Makeup',
     category: 'Bridal',
     description: 'A flawless bridal look that enhances your natural beauty for your special day.',
     fullDescription: 'Our premium bridal makeup service includes a detailed skin analysis, HD makeup application, hair styling, draping, and touch-up services. We use only premium products to ensure your makeup lasts all day and looks perfect in every photo.',
     price: 'From ₹15,000',
     image: 'https://placehold.co/600x400/olive/white?text=Bridal+Makeup',
+    isHD: true,
+    isTop: true,
   },
   {
-    id: 2,
+    _id: 'default-2',
     name: 'Bridesmaid Makeup',
     category: 'Bridesmaid',
     description: 'Elegant and complementary looks perfect for the bridal party.',
     fullDescription: 'Beautiful makeup packages for bridesmaids that complement the bridal look while maintaining individual style. Includes skin prep, makeup application, and basic hair styling.',
     price: 'From ₹8,000',
     image: 'https://placehold.co/600x400/yellow/white?text=Bridesmaid+Makeup',
+    isHD: false,
+    isTop: false,
   },
   {
-    id: 3,
+    _id: 'default-3',
     name: 'Groom Makeup',
     category: 'Groom',
     description: 'Polished and refined grooming services for the groom and groomsmen.',
     fullDescription: 'Professional grooming services for the groom including clean shave, facial, hair styling, and subtle makeup to ensure you look your best on your big day.',
     price: 'From ₹5,000',
     image: 'https://placehold.co/600x400/olive/white?text=Groom+Makeup',
+    isHD: false,
+    isTop: false,
   },
   {
-    id: 4,
+    _id: 'default-4',
     name: 'Hair Do',
     category: 'Hair',
     description: 'Trendy and classic hairstyles for every occasion.',
     fullDescription: 'From traditional buns to modern curls, our hairstylists create stunning looks that complement your outfit and face shape. Includes hair treatment and styling.',
     price: 'From ₹3,000',
     image: 'https://placehold.co/600x400/yellow/white?text=Hair+Do',
+    isHD: false,
+    isTop: false,
   },
   {
-    id: 5,
+    _id: 'default-5',
     name: 'Saree Do',
     category: 'Saree',
     description: 'Expert draping services for a perfect and elegant saree look.',
     fullDescription: 'Professional saree draping in various styles including Nivi, Bengali, Gujarati, and more. We ensure perfect pleats and comfortable draping that stays all day.',
     price: 'From ₹2,000',
     image: 'https://placehold.co/600x400/olive/white?text=Saree+Do',
+    isHD: false,
+    isTop: false,
   },
   {
-    id: 6,
+    _id: 'default-6',
     name: 'Mehndi',
     category: 'Mehndi',
     description: 'Intricate mehndi designs for hands and feet.',
     fullDescription: 'Beautiful mehndi designs ranging from traditional to contemporary patterns. Our artists create stunning designs that complement your bridal or party look.',
     price: 'From ₹1,500',
     image: 'https://placehold.co/600x400/yellow/white?text=Mehndi',
+    isHD: false,
+    isTop: false,
   },
   {
-    id: 7,
+    _id: 'default-7',
     name: 'Party Makeup',
     category: 'Bridal',
     description: 'Glamorous makeup for parties and special occasions.',
     fullDescription: 'Perfect for birthdays, anniversaries, and special occasions. Our party makeup service gives you a stunning look that stands out.',
     price: 'From ₹4,000',
     image: 'https://placehold.co/600x400/olive/white?text=Party+Makeup',
+    isHD: false,
+    isTop: false,
   },
   {
-    id: 8,
+    _id: 'default-8',
     name: 'Pre-Wedding Shoot',
     category: 'Bridal',
     description: 'Complete hair and makeup packages for pre-wedding photoshoots.',
     fullDescription: 'Look stunning in your pre-wedding photos with our specialized makeup packages. Includes multiple looks, hair styling, and touch-up services during the shoot.',
     price: 'From ₹12,000',
     image: 'https://placehold.co/600x400/yellow/white?text=Pre+Wedding',
+    isHD: false,
+    isTop: false,
   },
 ];
 
-const tags = ['All', 'Bridal', 'Bridesmaid', 'Groom', 'Hair', 'Saree', 'Mehndi'];
-
 export default function Services() {
+  const [services, setServices] = useState<Service[]>(defaultServices);
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState('All');
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await api.get('/services');
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setServices(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load services', err);
+      }
+    };
+    fetchServices();
+  }, []);
 
   const filteredServices = useMemo(() => {
     return services.filter((service) => {
@@ -99,7 +132,7 @@ export default function Services() {
       const matchesTag = activeTag === 'All' || service.category === activeTag;
       return matchesSearch && matchesTag;
     });
-  }, [search, activeTag]);
+  }, [search, activeTag, services]);
 
   return (
     <div className="min-h-screen bg-sandal pt-24">
@@ -156,7 +189,7 @@ export default function Services() {
           <AnimatePresence mode="popLayout">
             {filteredServices.map((service, index) => (
               <motion.div
-                key={service.id}
+                key={service._id}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -185,7 +218,7 @@ export default function Services() {
                 <div className="absolute inset-0 bg-olive/95 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center p-8 text-center">
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-4">{service.name}</h3>
-                    <p className="text-white/80 mb-6">{service.fullDescription}</p>
+                    <p className="text-white/80 mb-6">{service.fullDescription || service.description}</p>
                     <span className="text-yellow font-bold text-lg">{service.price}</span>
                   </div>
                 </div>
